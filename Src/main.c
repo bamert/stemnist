@@ -148,7 +148,9 @@ int main(void)
     putstr("Touchscreen init failed\n");
   uint16_t tversion = touchscreen.getVersion();
   putint(tversion);
-
+  // Works
+  uint32_t a,b,res;
+  res=__SADD8(a,b);
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
   /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
