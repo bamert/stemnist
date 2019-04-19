@@ -108,23 +108,50 @@ class ILI9341  {
   private:
     SPI_HandleTypeDef* hspi1;
     int _width, _height;
+    // Enables SPI1 
+    void SPI1_Init() {
+      /* full duplex master, 8 bit transfer, default phase and polarity */
+      SPI1->CR1 = SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI;
+      /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */
+      SPI1->CR2 = SPI_CR2_FRXTH;
+    }
+    /*void SPI1_Transfer(uint8_t *outp, uint8_t *inp, int count) {
+      while(count--) {
+          while(!(SPI1->SR & SPI_SR_TXE))
+              ;
+          *(volatile uint8_t *)&SPI1->DR = *outp++;
+          while(!(SPI1->SR & SPI_SR_RXNE))
+              ;
+          *inp++ = *(volatile uint8_t *)&SPI1->DR;
+      }
+    }*/
+
+    // Circumvent STM's slow HAL
+    void fastSpiSend(uint8_t* dat, int len){ 
+      while(len--) {
+          while(!(SPI1->SR & SPI_SR_TXE)) ;
+          *(volatile uint8_t *)&SPI1->DR = *dat++;
+          while(!(SPI1->SR & SPI_SR_RXNE)) ;
+      }
+    }
   public:
     ILI9341(SPI_HandleTypeDef* hspi1) :hspi1(hspi1){
       _width = ILI9341_TFTWIDTH;
       _height = ILI9341_TFTHEIGHT;
+      SPI1_Init();
     }
     void writecommand(uint8_t c){
       DISP_DC_LOW;
       DISP_CS_LOW;
-      //SPI.write(c);
-      HAL_SPI_Transmit(hspi1, &c, 1, HAL_MAX_DELAY);
+      //HAL_SPI_Transmit(hspi1, &c, 1, 10);
+      fastSpiSend(&c,1);
       DISP_CS_HIGH;
     }
     void writedata(uint8_t c){
       DISP_DC_HIGH;
       DISP_CS_LOW;
-      //SPI.write(c);
-      HAL_SPI_Transmit(hspi1, &c, 1, HAL_MAX_DELAY);
+      //HAL_SPI_Transmit(hspi1, &c, 1, 10);
+      fastSpiSend(&c,1);
       DISP_CS_LOW;
     }
     void init(){
@@ -232,10 +259,7 @@ class ILI9341  {
       writedata(0x0F); 
 
       writecommand(ILI9341_SLPOUT);    //Exit Sleep 
-      //if (hwSPI) spi_end();
-      //delay(120); 		
       HAL_Delay(120);
-      //if (hwSPI) spi_begin();
       writecommand(ILI9341_DISPON);    //Display on 
 
     }
@@ -245,94 +269,58 @@ class ILI9341  {
       writecommand(ILI9341_CASET); // Column addr set
       DISP_DC_HIGH;
       DISP_CS_LOW;
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
-      //SPI.write(x0 >> 8);
-      //SPI.write(x0 & 0xFF);     // XSTART 
-      //SPI.write(x1 >> 8);
-      //SPI.write(x1 & 0xFF);     // XEND
 
       uint8_t buf[4];
       buf[0] = x0 >> 8;
       buf[1] = x0 & 0xFF;
       buf[2] = x1 >> 8;
       buf[3] = x1 & 0xFF;
-      HAL_SPI_Transmit(hspi1, buf, 4, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, x0 >> 8, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, x0 & 0xFF, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, x1 >> 8, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, x1 & 0xFF, 1, HAL_MAX_DELAY);
+      //HAL_SPI_Transmit(hspi1, buf, 4, HAL_MAX_DELAY);
+      fastSpiSend(buf,4);
 
       writecommand(ILI9341_PASET); // Row addr set
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
-      //SPI.write(y0>>8);
-      //SPI.write(y0);     // YSTART
-      //SPI.write(y1>>8);
-      //SPI.write(y1);     // YEND
-
-      //HAL_SPI_Transmit(hspi1, y0 >> 8, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, y0 & 0xFF, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, y1 >> 8, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, y1 & 0xFF, 1, HAL_MAX_DELAY);
       
       buf[0] = y0 >> 8;
       buf[1] = y0 & 0xFF;
       buf[2] = y1 >> 8;
       buf[3] = y1 & 0xFF;
-      HAL_SPI_Transmit(hspi1, buf, 4, HAL_MAX_DELAY);
+      //HAL_SPI_Transmit(hspi1, buf, 4, HAL_MAX_DELAY);
+      fastSpiSend(buf,4);
       writecommand(ILI9341_RAMWR); // write to RAM
     }
 
 
     void pushColor(uint16_t color) {
-      //if (hwSPI) spi_begin();
-
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
 
-      //SPI.write(color >> 8);
-      //SPI.write(color);
 
       uint8_t buf[2];
       buf[0] = color >> 8;
       buf[1] = color;
-      HAL_SPI_Transmit(hspi1, buf, 2, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, color , 1, HAL_MAX_DELAY);
-      //*csport |= cspinmask;
+      //HAL_SPI_Transmit(hspi1, buf, 2, HAL_MAX_DELAY);
+      fastSpiSend(buf,2);
       DISP_CS_HIGH;
-      //digitalWrite(_cs, HIGH);
-      //if (hwSPI) spi_end();
     }
 
     void drawPixel(int16_t x, int16_t y, uint16_t color) {
 
       if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height)) return;
 
-      //if (hwSPI) spi_begin();
       setAddrWindow(x,y,x+1,y+1);
 
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
 
-      //SPI.write(color >> 8);
-      //SPI.write(color);
 
       uint8_t buf[2];
       buf[0] = color >> 8;
       buf[1] = color;
-      HAL_SPI_Transmit(hspi1, buf, 2, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, color >> 8, 1, HAL_MAX_DELAY);
-      //HAL_SPI_Transmit(hspi1, color , 1, HAL_MAX_DELAY);
-      //*csport |= cspinmask;
+      //HAL_SPI_Transmit(hspi1, buf, 2, HAL_MAX_DELAY);
+      fastSpiSend(buf,2);
       DISP_CS_HIGH;
-      //if (hwSPI) spi_end();
     }
 
 
@@ -347,25 +335,20 @@ class ILI9341  {
         h = _height-y;
       }
       
-      //if (hwSPI) spi_begin();
       setAddrWindow(x, y, x, y+h-1);
       uint8_t hi = color >> 8, lo = color;
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
 
       while (h--) 
       {
-        //SPI.write(hi);
-        //SPI.write(lo);
-        HAL_SPI_Transmit(hspi1, &hi, 1, HAL_MAX_DELAY);
-        HAL_SPI_Transmit(hspi1, &lo, 1, HAL_MAX_DELAY);
+        //HAL_SPI_Transmit(hspi1, &hi, 1, HAL_MAX_DELAY);
+        //HAL_SPI_Transmit(hspi1, &lo, 1, HAL_MAX_DELAY);
+        fastSpiSend(&hi,1);
+        fastSpiSend(&lo,1);
       }
-      //*csport |= cspinmask;
       DISP_CS_HIGH;
 
-      //if (hwSPI) spi_end();
     }
 
 
@@ -379,19 +362,15 @@ class ILI9341  {
       setAddrWindow(x, y, x+w-1, y);
 
       uint8_t hi = color >> 8, lo = color;
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
       while (w--) {
-        //SPI.write(hi);
-        //SPI.write(lo);
-        HAL_SPI_Transmit(hspi1, &hi, 1, HAL_MAX_DELAY);
-        HAL_SPI_Transmit(hspi1, &lo, 1, HAL_MAX_DELAY);
+        //HAL_SPI_Transmit(hspi1, &hi, 1, HAL_MAX_DELAY);
+        //HAL_SPI_Transmit(hspi1, &lo, 1, HAL_MAX_DELAY);
+        fastSpiSend(&hi,1);
+        fastSpiSend(&lo,1);
       }
-      //*csport |= cspinmask;
       DISP_CS_HIGH;
-      //if (hwSPI) spi_end();
     }
 
     void fillScreen(uint16_t color) {
@@ -407,28 +386,23 @@ class ILI9341  {
       if((x + w - 1) >= _width)  w = _width  - x;
       if((y + h - 1) >= _height) h = _height - y;
 
-      //if (hwSPI) spi_begin();
       setAddrWindow(x, y, x+w-1, y+h-1);
 
       uint8_t hi = color >> 8, lo = color;
 
-      //*dcport |=  dcpinmask;
-      //*csport &= ~cspinmask;
       DISP_DC_HIGH;
       DISP_CS_LOW;
       for(y=h; y>0; y--) 
       {
         for(x=w; x>0; x--)
         {
-          HAL_SPI_Transmit(hspi1, &hi, 1, HAL_MAX_DELAY);
-          HAL_SPI_Transmit(hspi1, &lo, 1, HAL_MAX_DELAY);
-          //SPI.write(hi);
-          //SPI.write(lo);
+          //HAL_SPI_Transmit(hspi1, &hi, 1, 1);//$HAL_MAX_DELAY);
+          //HAL_SPI_Transmit(hspi1, &lo, 1, 1);//$HAL_MAX_DELAY);
+          fastSpiSend(&hi,1);
+          fastSpiSend(&lo,1);
         }
       }
       
-      //if (hwSPI) spi_end();
-      //*csport |= cspinmask;
       DISP_CS_HIGH;
     }
 
@@ -449,7 +423,6 @@ class ILI9341  {
 
     void setRotation(uint8_t m) {
 
-      //if (hwSPI) spi_begin();
       writecommand(ILI9341_MADCTL);
       int rotation = m % 4; // can't be higher than 3
       switch (rotation) {
@@ -474,14 +447,11 @@ class ILI9341  {
          _height = ILI9341_TFTWIDTH;
          break;
       }
-      //if (hwSPI) spi_end();
     }
 
 
     void ILI9341_invertDisplay(bool i) {
-      //if (hwSPI) spi_begin();
       writecommand(i ? ILI9341_INVON : ILI9341_INVOFF);
-      //if (hwSPI) spi_end();
     }
 
    
