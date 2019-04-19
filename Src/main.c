@@ -19,8 +19,10 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "main.h"
 #include "Adafruit/Adafruit_ILI9341.h"
+#include "Adafruit/Adafruit_STMPE610.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -75,11 +77,16 @@ static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 // Dead simple put string method. Nik Bamert
-void puts(char* s){
+void putstr(char* s){
   while(*s != 0x00){
     while (HAL_OK != HAL_UART_Transmit(&huart1, (uint8_t*)s, 1, 30000));
     s++;
   }
+}
+void putint(uint16_t v){
+  char str[16];
+  sprintf(str,"%u",v);
+  putstr(str);
 }
 /* USER CODE END PFP */
 
@@ -126,26 +133,58 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);//disable touchscreen chip
+
   /* USER CODE END 2 */
-  puts("This is from puts!");
+  putstr("This is from puts!\n");
   ILI9341 display(&hspi1);
+  STMPE610 touchscreen;
+  bool ts_success = touchscreen.init();
+  if(ts_success)
+    putstr("Touchscreen initialized\n");
+  else
+    putstr("Touchscreen init failed\n");
+  uint16_t tversion = touchscreen.getVersion();
+  putint(tversion);
+
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
-  display.fillRect(0,0,100,200, display.color565(255,100,50));
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+  /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
+  /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);*/
   uint8_t in[3] = {0,1,2};
   uint8_t out[3] = {0,1,2};
   /*HAL_SPI_Transmit(&hspi1, (uint8_t *)buf, strlen(buf), HAL_MAX_DELAY);*/
   /*HAL_SPI_TransmitReceive(&hspi1, in,out,strlen(in), HAL_MAX_DELAY);*/
   /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);*/
   /*HAL_Delay(10);*/
-  puts("Gonna init TFT");
+  putstr("Gonna init TFT\n");
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint16_t red = display.color565(255,0,0);
+  //y: 400 - 3500
+  //Top left: 526,1870
+  //Top right: 526, 2200,
+  //Bottom left:514,316-kkJ,65
+  //bottom right:522,2360, 44
+  uint16_t x,y;
+  uint8_t z;
   while (1)
   {
     /* USER CODE END WHILE */
 
+    if(touchscreen.touched()){
+      /*TS_Point tp = touchscreen.getPoint();*/
+      while (! touchscreen.bufferEmpty()) {
+        /*Serial.print(touch.bufferSize());*/
+        touchscreen.readData(&x, &y, &z);
+      }
+      touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
+      putint(x); putstr(" "); putint(y);  putstr("\n");
+      display.drawPixel(x,y,red);
+      
+    }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

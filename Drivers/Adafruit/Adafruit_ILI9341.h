@@ -128,6 +128,7 @@ class ILI9341  {
 
     // Circumvent STM's slow HAL
     void fastSpiSend(uint8_t* dat, int len){ 
+      SPI1_Init();
       while(len--) {
           while(!(SPI1->SR & SPI_SR_TXE)) ;
           *(volatile uint8_t *)&SPI1->DR = *dat++;
