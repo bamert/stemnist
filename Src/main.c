@@ -153,7 +153,7 @@ int main(void)
   res=__SADD8(a,b);
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
-  display.fillRect(0,0,100,200, display.color565(255,100,50));
+  /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
   /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);*/
   uint8_t in[3] = {0,1,2};
   uint8_t out[3] = {0,1,2};
@@ -177,15 +177,38 @@ int main(void)
     /* USER CODE END WHILE */
 
     if(touchscreen.touched()){
-      /*TS_Point tp = touchscreen.getPoint();*/
-      while (! touchscreen.bufferEmpty()) {
-        /*Serial.print(touch.bufferSize());*/
+      TS_Point tp = touchscreen.getPoint();
+      /*while (! touchscreen.bufferEmpty()) {
         touchscreen.readData(&x, &y, &z);
       }
       touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
+      */
+      /*putint(x); putstr(" "); putint(y);  putstr("\n");*/
+      //In portrait(cable combing out on left:
+      //X:500...3000
+      //Y:400..3400
+      /*uint16_t dx=x, dy=y;
+      dx/=10;
+      dx-=50; //Now 0...2500
+      dx = dx >= 240 ? 239 : dx;
+      dx = dx <= 0 ? 0 : dx;
+      dy/=10;
+      dy-=40; // Now 0...3000;
+      dy = dy >= 320 ? 319 : dy;
+      dy = dy <= 0 ? 0 : dy;*/
+      /*x/=10;*/
+      /*y/=10;*/
+      x=tp.x; 
+      y=tp.y;
+      
+      //Issue is not the timing and also not stack / heap.
+      //As soon as I edit these numbers: kaboom.
+      putint(x); putstr(" "); putint(y);  putstr("\n");
+      putint(x); putstr(" "); putint(y);  putstr("\n");
+      putint(x); putstr(" "); putint(y);  putstr("\n");
+      putint(x); putstr(" "); putint(y);  putstr("\n");
       putint(x); putstr(" "); putint(y);  putstr("\n");
       display.drawPixel(x,y,red);
-      
     }
     /* USER CODE BEGIN 3 */
   }
