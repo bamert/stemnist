@@ -110,6 +110,7 @@ class ILI9341  {
     int _width, _height;
     // Enables SPI1 
     void SPI1_Init() {
+      //SPI1->CR1 &= ~SPI_CR1_SPE;
       /* full duplex master, 8 bit transfer, default phase and polarity */
       SPI1->CR1 = SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI;
       /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */

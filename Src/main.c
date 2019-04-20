@@ -198,17 +198,21 @@ int main(void)
       dy = dy <= 0 ? 0 : dy;*/
       /*x/=10;*/
       /*y/=10;*/
-      x=tp.x; 
-      y=tp.y;
+      x=tp.x/10; 
+      y=tp.y/10;
       
       //Issue is not the timing and also not stack / heap.
       //As soon as I edit these numbers: kaboom.
+      // Problem seems to be the call to drawPixel
+      // or anything really.
+      // Imho SPI somehow gets fucked because of the modes?
+      // should disable before re-enabling.
       putint(x); putstr(" "); putint(y);  putstr("\n");
       putint(x); putstr(" "); putint(y);  putstr("\n");
       putint(x); putstr(" "); putint(y);  putstr("\n");
       putint(x); putstr(" "); putint(y);  putstr("\n");
       putint(x); putstr(" "); putint(y);  putstr("\n");
-      display.drawPixel(x,y,red);
+      /*display.drawPixel(x,y,red);*/
     }
     /* USER CODE BEGIN 3 */
   }
