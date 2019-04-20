@@ -177,17 +177,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     if(touchscreen.touched()){
-      TS_Point tp = touchscreen.getPoint();
-      /*while (! touchscreen.bufferEmpty()) {
+      /*TS_Point tp = touchscreen.getPoint();*/
+      while (! touchscreen.bufferEmpty()) {
         touchscreen.readData(&x, &y, &z);
       }
       touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
-      */
+      
       /*putint(x); putstr(" "); putint(y);  putstr("\n");*/
       //In portrait(cable combing out on left:
       //X:500...3000
       //Y:400..3400
-      /*uint16_t dx=x, dy=y;
+      uint16_t dx=x, dy=y;
       dx/=10;
       dx-=50; //Now 0...2500
       dx = dx >= 240 ? 239 : dx;
@@ -195,11 +195,11 @@ int main(void)
       dy/=10;
       dy-=40; // Now 0...3000;
       dy = dy >= 320 ? 319 : dy;
-      dy = dy <= 0 ? 0 : dy;*/
+      dy = dy <= 0 ? 0 : dy;
       /*x/=10;*/
       /*y/=10;*/
-      x=tp.x/10; 
-      y=tp.y/10;
+      /*x=tp.x/10; */
+      /*y=tp.y/10;*/
       
       //Issue is not the timing and also not stack / heap.
       //As soon as I edit these numbers: kaboom.
@@ -207,12 +207,8 @@ int main(void)
       // or anything really.
       // Imho SPI somehow gets fucked because of the modes?
       // should disable before re-enabling.
-      putint(x); putstr(" "); putint(y);  putstr("\n");
-      putint(x); putstr(" "); putint(y);  putstr("\n");
-      putint(x); putstr(" "); putint(y);  putstr("\n");
-      putint(x); putstr(" "); putint(y);  putstr("\n");
-      putint(x); putstr(" "); putint(y);  putstr("\n");
-      /*display.drawPixel(x,y,red);*/
+      putint(dx); putstr(" "); putint(dy);  putstr("\n");
+      /*display.drawPixel(dx,dy,red);*/
     }
     /* USER CODE BEGIN 3 */
   }

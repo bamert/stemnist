@@ -163,6 +163,7 @@ class STMPE610{
     }
     void SPI1_Init() {
       /* full duplex master, 8 bit transfer, default phase and polarity */
+      SPI1->CR1 &= ~SPI_CR1_SPE;
       SPI1->CR1 = SPI_CR1_BR_2 | SPI_CR1_BR_0; //64 divider. works sort of
       //SPI1->CR1 = SPI_CR1_BR_2 ; //32 divider. does not work!
       //SPI1->CR1 = SPI_CR1_BR_2 | SPI_CR1_BR_1; //128 divider. 
