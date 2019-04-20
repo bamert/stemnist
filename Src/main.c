@@ -153,7 +153,7 @@ int main(void)
   res=__SADD8(a,b);
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
-  /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
+  display.fillRect(0,0,100,200, display.color565(255,100,50));
   /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);*/
   uint8_t in[3] = {0,1,2};
   uint8_t out[3] = {0,1,2};
