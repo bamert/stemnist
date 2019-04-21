@@ -110,7 +110,7 @@ class ILI9341  {
     int _width, _height;
     // Enables SPI1 
     void SPI1_Init() {
-      SPI1->CR1 &= ~SPI_CR1_SPE;
+      //SPI1->CR1 &= ~SPI_CR1_SPE;
       /* full duplex master, 8 bit transfer, default phase and polarity */
       SPI1->CR1 = SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI;
       /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */
@@ -154,7 +154,7 @@ class ILI9341  {
       DISP_CS_LOW;
       //HAL_SPI_Transmit(hspi1, &c, 1, 10);
       fastSpiSend(&c,1);
-      DISP_CS_LOW;
+      DISP_CS_HIGH;
     }
     void init(){
       writecommand(0xEF);
@@ -291,6 +291,7 @@ class ILI9341  {
       //HAL_SPI_Transmit(hspi1, buf, 4, HAL_MAX_DELAY);
       fastSpiSend(buf,4);
       writecommand(ILI9341_RAMWR); // write to RAM
+      DISP_CS_HIGH;
     }
 
 

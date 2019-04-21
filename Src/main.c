@@ -148,6 +148,9 @@ int main(void)
     putstr("Touchscreen init failed\n");
   uint16_t tversion = touchscreen.getVersion();
   putint(tversion);
+  uint8_t spicon = touchscreen.readRegister8(0x08);
+  putstr("SPICON:");
+  putint(spicon);
   // Works
   uint32_t a,b,res;
   res=__SADD8(a,b);
@@ -207,8 +210,8 @@ int main(void)
       // or anything really.
       // Imho SPI somehow gets fucked because of the modes?
       // should disable before re-enabling.
-      putint(dx); putstr(" "); putint(dy);  putstr("\n");
-      /*display.drawPixel(dx,dy,red);*/
+      //putint(dx); putstr(" "); putint(dy);  putstr("\n");
+      display.drawPixel(dx,dy,red);
     }
     /* USER CODE BEGIN 3 */
   }
@@ -672,7 +675,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ARD_D10_Pin|SPBTLE_RF_RST_Pin|ARD_D9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D4_Pin */
@@ -707,7 +710,7 @@ static void MX_GPIO_Init(void)
                           |SPSGRF_915_SDN_Pin|ARD_D5_Pin|SPSGRF_915_SPI3_CSN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LPS22HB_INT_DRDY_EXTI0_Pin LSM6DSL_INT1_EXTI11_Pin ARD_D2_Pin HTS221_DRDY_EXTI15_Pin 

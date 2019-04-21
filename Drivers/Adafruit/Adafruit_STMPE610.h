@@ -163,15 +163,16 @@ class STMPE610{
     }
     void SPI1_Init() {
       /* full duplex master, 8 bit transfer, default phase and polarity */
-      SPI1->CR1 &= ~SPI_CR1_SPE;
+      //SPI1->CR1 &= ~SPI_CR1_SPE;
       SPI1->CR1 = SPI_CR1_BR_2 | SPI_CR1_BR_0; //64 divider. works sort of
       //SPI1->CR1 = SPI_CR1_BR_2 ; //32 divider. does not work!
       //SPI1->CR1 = SPI_CR1_BR_2 | SPI_CR1_BR_1; //128 divider. 
       //256 divider seems to slow (?). All values of x axis always 512
 
 
-      //SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPHA;
-      SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPHA | SPI_CR1_CPOL; // mode 3
+      //
+      //SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPHA | SPI_CR1_CPOL; // mode 3
+      SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI  ; // mode 0
       /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */
       SPI1->CR2 = SPI_CR2_FRXTH;
     }
