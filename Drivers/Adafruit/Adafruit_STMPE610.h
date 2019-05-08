@@ -273,10 +273,11 @@ class STMPE610{
       writeRegister8(STMPE_INT_EN, STMPE_INT_EN_TOUCHDET);
       writeRegister8(STMPE_ADC_CTRL1, STMPE_ADC_CTRL1_12BIT |
                                           (0x6 << 4)); // 96 clocks per conversion
-      writeRegister8(STMPE_ADC_CTRL2, STMPE_ADC_CTRL2_3_25MHZ);
+      //writeRegister8(STMPE_ADC_CTRL2, STMPE_ADC_CTRL2_1_625MHZ);
+      writeRegister8(STMPE_ADC_CTRL2, STMPE_ADC_CTRL2_6_5MHZ);
       writeRegister8(STMPE_TSC_CFG, STMPE_TSC_CFG_4SAMPLE |
-                                        STMPE_TSC_CFG_DELAY_1MS |
-                                        STMPE_TSC_CFG_SETTLE_1MS);
+                                        STMPE_TSC_CFG_DELAY_10US |
+                                        STMPE_TSC_CFG_SETTLE_10US);
       writeRegister8(STMPE_TSC_FRACTION_Z, 0x6);
       writeRegister8(STMPE_FIFO_TH, 1);
       writeRegister8(STMPE_FIFO_STA, STMPE_FIFO_STA_RESET);

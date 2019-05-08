@@ -134,8 +134,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);//disable touchscreen chip
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
 
   /* USER CODE END 2 */
   putstr("This is from puts!\n");
@@ -190,13 +191,13 @@ int main(void)
       //In portrait(cable combing out on left:
       //X:500...3000
       //Y:400..3400
-      uint16_t dx=x, dy=y;
-      dx/=10;
-      dx-=50; //Now 0...2500
+      int16_t dx=x, dy=y;
+      dx/=15;
+      dx-=10; //Now 0...2500
+      dy/=12;
+      dy-=10; // Now 0...3000;
       dx = dx >= 240 ? 239 : dx;
       dx = dx <= 0 ? 0 : dx;
-      dy/=10;
-      dy-=40; // Now 0...3000;
       dy = dy >= 320 ? 319 : dy;
       dy = dy <= 0 ? 0 : dy;
       /*x/=10;*/
