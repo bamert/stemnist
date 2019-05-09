@@ -187,7 +187,6 @@ int main(void)
   uint8_t z;
   int sx=0,sy=0;
   // previous point
-  int px=0,py=0;
   int cnt=10;
   while (1){
     /* USER CODE END WHILE */
@@ -219,9 +218,11 @@ int main(void)
         sx/=11;
         sy/=11;
         //if(dist(sx,sy,px,py,10))
-          display.drawPixel(sx,sy,red);
-        px=sx;
-        py=sy;
+        if(sy>int(120)){
+          for(int i=-2;i<=2;i++)
+            for(int j=-2;j<=2;j++)
+          display.drawPixel(sx+i,sy+j,red);
+        }
       }
       cnt--;
     }

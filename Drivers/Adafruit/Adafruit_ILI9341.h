@@ -325,6 +325,16 @@ class ILI9341  {
       fastSpiSend(buf,2);
       DISP_CS_HIGH;
     }
+    void drawGUI(void){
+      //Rectangle for drawing area
+      //(x,y): (128,8)x(232,8
+      for(uint8_t x=8;x<232;x++)
+        drawPixel(x,128, ILI9341_BLACK);
+      for(uint8_t x=8;x<232;x++)
+        drawPixel(x,128, ILI9341_BLACK);
+      
+
+    }
 
 
     void drawFastVLine(int16_t x, int16_t y, int16_t h,
