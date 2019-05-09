@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
+#include <stdlib.h>
 #include "main.h"
 #include "Adafruit/Adafruit_ILI9341.h"
 #include "Adafruit/Adafruit_STMPE610.h"
@@ -28,6 +29,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -87,6 +89,13 @@ void putint(uint16_t v){
   char str[16];
   sprintf(str,"%u",v);
   putstr(str);
+}
+bool dist(int sx, int sy, int px, int py, int dist){
+  int d = abs(sx-px) + abs(sy-py);
+  if (d < dist && d >=0) 
+    return true;
+  else 
+    return false;
 }
 /* USER CODE END PFP */
 
@@ -176,8 +185,11 @@ int main(void)
   //bottom right:522,2360, 44
   uint16_t x,y;
   uint8_t z;
-  while (1)
-  {
+  int sx=0,sy=0;
+  // previous point
+  int px=0,py=0;
+  int cnt=10;
+  while (1){
     /* USER CODE END WHILE */
 
     if(touchscreen.touched()){
@@ -187,11 +199,10 @@ int main(void)
       }
       touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
       
-      /*putint(x); putstr(" "); putint(y);  putstr("\n");*/
       //In portrait(cable combing out on left:
       //X:500...3000
       //Y:400..3400
-      int16_t dx=x, dy=y;
+      int dx=x, dy=y;
       dx/=15;
       dx-=10; //Now 0...2500
       dy/=12;
@@ -200,19 +211,19 @@ int main(void)
       dx = dx <= 0 ? 0 : dx;
       dy = dy >= 320 ? 319 : dy;
       dy = dy <= 0 ? 0 : dy;
-      /*x/=10;*/
-      /*y/=10;*/
-      /*x=tp.x/10; */
-      /*y=tp.y/10;*/
       
-      //Issue is not the timing and also not stack / heap.
-      //As soon as I edit these numbers: kaboom.
-      // Problem seems to be the call to drawPixel
-      // or anything really.
-      // Imho SPI somehow gets fucked because of the modes?
-      // should disable before re-enabling.
-      //putint(dx); putstr(" "); putint(dy);  putstr("\n");
-      display.drawPixel(dx,dy,red);
+      sx+=dx;
+      sy+=dy; 
+      if(cnt==0){
+        cnt=10;
+        sx/=11;
+        sy/=11;
+        //if(dist(sx,sy,px,py,10))
+          display.drawPixel(sx,sy,red);
+        px=sx;
+        py=sy;
+      }
+      cnt--;
     }
     /* USER CODE BEGIN 3 */
   }
