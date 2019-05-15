@@ -219,6 +219,16 @@ int main(void)
         sy/=11;
         //if(dist(sx,sy,px,py,10))
         if(sy>int(120)){
+            
+          putint(sx);
+          putstr(" ");
+          putint(sy);
+          putstr("\n");
+          display.drawPixel(sx,sy,red);
+          display.drawPixel(sx+1,sy,red);
+          display.drawPixel(sx,sy+1,red);
+          display.drawPixel(sx-1,sy,red);
+          display.drawPixel(sx,sy-1,red);
           for(int i=-2;i<=2;i++)
             for(int j=-2;j<=2;j++)
           display.drawPixel(sx+i,sy+j,red);

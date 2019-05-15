@@ -116,6 +116,9 @@ class ILI9341  {
       /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */
       SPI1->CR2 = SPI_CR2_FRXTH;
     }
+    void SPI1_SetSpeed(){
+      SPI1->CR1 &=~( SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0); //switch off clock divdivider l
+    }
     /*void SPI1_Transfer(uint8_t *outp, uint8_t *inp, int count) {
       while(count--) {
           while(!(SPI1->SR & SPI_SR_TXE))
@@ -129,7 +132,7 @@ class ILI9341  {
 
     // Circumvent STM's slow HAL
     void fastSpiSend(uint8_t* dat, int len){ 
-      SPI1_Init();
+      SPI1_SetSpeed();
       while(len--) {
           while(!(SPI1->SR & SPI_SR_TXE)) ;
           *(volatile uint8_t *)&SPI1->DR = *dat++;
