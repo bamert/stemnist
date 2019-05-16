@@ -34,7 +34,8 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h \
- Drivers/Adafruit/Adafruit_ILI9341.h Drivers/Adafruit/Adafruit_STMPE610.h
+ Drivers/Adafruit/Adafruit_ILI9341.h Drivers/Adafruit/Adafruit_STMPE610.h \
+ Drivers/SD.h
 
 Inc/main.h:
 
@@ -115,3 +116,5 @@ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h:
 Drivers/Adafruit/Adafruit_ILI9341.h:
 
 Drivers/Adafruit/Adafruit_STMPE610.h:
+
+Drivers/SD.h:

@@ -24,6 +24,7 @@
 #include "main.h"
 #include "Adafruit/Adafruit_ILI9341.h"
 #include "Adafruit/Adafruit_STMPE610.h"
+#include "SD.h" // Nik's SD card driver
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -144,11 +145,20 @@ int main(void)
 
 
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);//disable touchscreen chip
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);//disable sd card
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
 
   /* USER CODE END 2 */
   putstr("This is from puts!\n");
+  SDCard sd;
+  uint8_t sdstat = sd.init_card();
+  putstr("SD init state:");
+  putint(sdstat);
+  uint8_t sdbuf[512];
+  sdstat = sd.sd_read(0, sdbuf);
+  putstr("SD read success state:");
+  putint(sdstat);
   ILI9341 display(&hspi1);
   STMPE610 touchscreen;
   bool ts_success = touchscreen.init();
@@ -705,8 +715,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ARD_D4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  /*GPIO_InitStruct.Alternate = GPIO_SPEED_FREQ_HIGH;*/
   HAL_GPIO_Init(ARD_D4_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D7_Pin */
