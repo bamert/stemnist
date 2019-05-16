@@ -24,6 +24,7 @@
 #include "main.h"
 #include "Adafruit/Adafruit_ILI9341.h"
 #include "Adafruit/Adafruit_STMPE610.h"
+#include "stm32l475e_iot01_qspi.h"
 #include "SD.h" // Nik's SD card driver
 
 /* Private includes ----------------------------------------------------------*/
@@ -148,10 +149,17 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);//disable sd card
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
+  uint8_t uartbuffer[128];
+  // Receive the 8192 test images
+  for(int i=0;i< 50177;i++){
+    HAL_UART_Receive(&huart1, uartbuffer, sizeof(uartbuffer), HAL_MAX_DELAY);
+    putint(i);
+  }
+  putstr("received 50177 blocks");
 
   /* USER CODE END 2 */
   putstr("This is from puts!\n");
-  SDCard sd;
+  /*SDCard sd;
   uint8_t sdstat = sd.init_card();
   putstr("SD init state:");
   putint(sdstat);
@@ -159,6 +167,22 @@ int main(void)
   sdstat = sd.sd_read(0, sdbuf);
   putstr("SD read success state:");
   putint(sdstat);
+  */
+  uint8_t qspistat = BSP_QSPI_Init();
+  putstr("QSPI init state:");
+  putint(qspistat);
+  uint8_t teststr[] = "Hello World!";
+  qspistat = BSP_QSPI_Write(teststr, 0, 12);
+
+  putstr("write state:");
+  putint(qspistat);
+
+  uint8_t readback[18];
+  qspistat = BSP_QSPI_Read(readback, 0, 12);
+
+  putstr("read state:");
+  putint(qspistat);
+  putstr((char*)readback);
   ILI9341 display(&hspi1);
   STMPE610 touchscreen;
   bool ts_success = touchscreen.init();
@@ -172,8 +196,8 @@ int main(void)
   putstr("SPICON:");
   putint(spicon);
   // Works
-  uint32_t a,b,res;
-  res=__SADD8(a,b);
+  /*uint32_t a,b,res;*/
+  /*res=__SADD8(a,b);*/
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
   /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
@@ -781,6 +805,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(PMOD_SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
+
+  // SPI1 MOSI pullup
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PMOD_UART2_CTS_Pin PMOD_UART2_RTS_Pin PMOD_UART2_TX_Pin PMOD_UART2_RX_Pin */
   GPIO_InitStruct.Pin = PMOD_UART2_CTS_Pin|PMOD_UART2_RTS_Pin|PMOD_UART2_TX_Pin|PMOD_UART2_RX_Pin;

@@ -46,7 +46,7 @@ class SDCard{
   // /div8: 10Mhz
   void SPI1_SetOpSpeed(){ 
     SPI1->CR1 |= SPI_CR1_BR_1; 
-    SPI1->CR1 &=~(SPI_CR1_BR_2 | SPI_CR1_BR_0 ); //switch off clock divdivider l
+    SPI1->CR1 &=~(SPI_CR1_BR_2 | SPI_CR1_BR_0 ); //switch off clock div l
   }
   uint8_t spix(uint8_t out){
       uint8_t in=0x00;
@@ -88,8 +88,8 @@ class SDCard{
       res = spix(0xff);
     while ((res & 0x80) && --n);
 
-    //spix(0x95); // Checksum (should be only valid for first command (0) 
-    //spix(0xff); // eat empty command - response 
+    spix(0x95); // Checksum (should be only valid for first command (0) 
+    spix(0xff); // eat empty command - response 
     return res;
   }
   uint8_t  init_card(void) {
@@ -105,15 +105,16 @@ class SDCard{
     }
     SD_CS_LOW
 
+    //HAL_Delay(10);
     ty=0;
-    i=2000;
+    i=200;
     do
     {
       resp = sdCommand(CMD0,0);
     } while(resp!=1 && i--);
 
     if(resp==1) {
-      i =500;
+      i =50;
       do {
         resp = sdCommand(CMD8,0x1AA);
 	    } while(resp!=1 && i--);

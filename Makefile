@@ -39,6 +39,7 @@ C_SOURCES =  \
 Src/main.c \
 Src/stm32l4xx_it.c \
 Src/stm32l4xx_hal_msp.c \
+Drivers/stm32l475e_iot01_qspi.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dfsdm.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c \
