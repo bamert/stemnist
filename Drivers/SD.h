@@ -40,13 +40,13 @@ class SDCard{
     SPI1->CR2 = SPI_CR2_FRXTH;
   }
   void SPI1_SetInitSpeed(){
-    SPI1->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_0; //64 divider
-    SPI1->CR1 &=~(SPI_CR1_BR_1 ); //switch off clock divdivider l
+    SPI1->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0; //64 divider
+    //SPI1->CR1 &=~(SPI_CR1_BR_1 ); //switch off clock divdivider l
   }
-  // /div4: 20Mhz
+  // /div8: 10Mhz
   void SPI1_SetOpSpeed(){ 
-    SPI1->CR1 |= SPI_CR1_BR_0; //64 divider
-    SPI1->CR1 &=~(SPI_CR1_BR_2 | SPI_CR1_BR_1 ); //switch off clock divdivider l
+    SPI1->CR1 |= SPI_CR1_BR_1; 
+    SPI1->CR1 &=~(SPI_CR1_BR_2 | SPI_CR1_BR_0 ); //switch off clock divdivider l
   }
   uint8_t spix(uint8_t out){
       uint8_t in=0x00;
@@ -60,6 +60,7 @@ class SDCard{
   public:
   SDCard() {
     SPI1_Init();
+    SPI1_SetInitSpeed();
   }
   uint8_t sdCommand(uint8_t cmd, uint32_t param) {
     uint8_t n,res;
