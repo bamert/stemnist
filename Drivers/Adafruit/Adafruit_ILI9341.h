@@ -15,6 +15,7 @@
 
 #ifndef _ADAFRUIT_ILI9341H_
 #define _ADAFRUIT_ILI9341H_
+#include "font/font8x8_basic.h"
 
 // Digital 10 Display CS (PA2)
 #define DISP_CS_LOW HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
@@ -335,9 +336,28 @@ class ILI9341  {
         drawPixel(x,128, ILI9341_BLACK);
       for(uint8_t x=8;x<232;x++)
         drawPixel(x,128, ILI9341_BLACK);
-      
-
     }
+    void putstr(int x, int y, const char* str){
+      //Lower left corner of where we draw a character
+      int dx=x;
+      int dy=y;
+      while(*str != 0x00){
+
+        //Draw 64 pixels
+        for(uint8_t cx=0;cx<8;cx++){
+          char charline = font8x8_basic[*str][7-cx]; 
+          for(uint8_t cy=0;cy<8;cy++){
+            if(charline&(1<<(7-cy)))
+              drawPixel(dx+cx,dy+7-cy,ILI9341_BLACK);
+            else
+              drawPixel(dx+cx,dy+7-cy,ILI9341_WHITE);
+          }
+        }
+        dy+=8;
+        str++;
+      }
+    }
+
 
 
     void drawFastVLine(int16_t x, int16_t y, int16_t h,

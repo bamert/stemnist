@@ -34,7 +34,8 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h \
- Drivers/Adafruit/Adafruit_ILI9341.h Drivers/stm32l475e_iot01_qspi.h \
+ Drivers/Adafruit/Adafruit_ILI9341.h Inc/font/font8x8_basic.h \
+ Drivers/stm32l475e_iot01_qspi.h \
  Drivers/BSP/Components/mx25r6435f/mx25r6435f.h Inc/data/testimgs512.h \
  Inc/data/testlabels512.h
 
@@ -115,6 +116,8 @@ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h:
 Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h:
 
 Drivers/Adafruit/Adafruit_ILI9341.h:
+
+Inc/font/font8x8_basic.h:
 
 Drivers/stm32l475e_iot01_qspi.h:
 

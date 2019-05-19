@@ -104,7 +104,7 @@ void printTestTest(ILI9341& display, int idx){
     for(int y=0;y<28;y++){
       unsigned char px =  testimgs512[baseOffset+y*28+x];
       uint16_t col = display.color565(px,px,px);
-      display.drawPixel(x,y,col);
+      display.drawPixel(y,28-x,col);
     }
   }
 }
@@ -164,6 +164,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  display.putstr(50,50, "Hello World!");
   for(int i=0;i<200;i++){
     printTestTest(display, i);
     HAL_Delay(10);
