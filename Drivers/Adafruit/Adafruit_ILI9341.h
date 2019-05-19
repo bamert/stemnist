@@ -396,7 +396,6 @@ class ILI9341  {
     // fill a rectangle
     void fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
       uint16_t color) {
-      int numPixels;
       // rudimentary clipping (drawChar w/big text requires this)
       if((x >= _width) || (y >= _height)) return;
       if((x + w - 1) >= _width)  w = _width  - x;

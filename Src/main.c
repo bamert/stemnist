@@ -23,9 +23,8 @@
 #include <stdlib.h>
 #include "main.h"
 #include "Adafruit/Adafruit_ILI9341.h"
-#include "Adafruit/Adafruit_STMPE610.h"
+/*#include "Adafruit/Adafruit_STMPE610.h"*/
 #include "stm32l475e_iot01_qspi.h"
-#include "SD.h" // Nik's SD card driver
 #include "data/testimgs512.h"
 #include "data/testlabels512.h"
 
@@ -94,13 +93,6 @@ void putint(uint16_t v){
   sprintf(str,"%u",v);
   putstr(str);
 }
-bool dist(int sx, int sy, int px, int py, int dist){
-  int d = abs(sx-px) + abs(sy-py);
-  if (d < dist && d >=0) 
-    return true;
-  else 
-    return false;
-}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -154,6 +146,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_SPI1_Init();
+  MX_DFSDM1_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -163,15 +156,11 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
 
   /* USER CODE END 2 */
-  putstr("This is from puts!\n");
   ILI9341 display(&hspi1);
 
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
 
-  uint8_t in[3] = {0,1,2};
-  uint8_t out[3] = {0,1,2};
-  putstr("Gonna init TFT\n");
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
@@ -186,7 +175,6 @@ int main(void)
 
     }
     /* USER CODE BEGIN 3 */
-  }
   /* USER CODE END 3 */
 }
 
