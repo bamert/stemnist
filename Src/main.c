@@ -26,6 +26,8 @@
 #include "Adafruit/Adafruit_STMPE610.h"
 #include "stm32l475e_iot01_qspi.h"
 #include "SD.h" // Nik's SD card driver
+#include "data/testimgs512.h"
+#include "data/testlabels512.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -103,7 +105,17 @@ bool dist(int sx, int sy, int px, int py, int dist){
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void printTestTest(ILI9341& display, int idx){
+  if(idx>511) return;
+  int baseOffset=16+idx*28*28;
+  for(int x=0;x<28;x++){
+    for(int y=0;y<28;y++){
+      unsigned char px =  testimgs512[baseOffset+y*28+x];
+      uint16_t col = display.color565(px,px,px);
+      display.drawPixel(x,y,col);
+    }
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -149,126 +161,29 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);//disable sd card
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
-  uint8_t uartbuffer[128];
-  // Receive the 8192 test images
-  for(int i=0;i< 50177;i++){
-    HAL_UART_Receive(&huart1, uartbuffer, sizeof(uartbuffer), HAL_MAX_DELAY);
-    putint(i);
-  }
-  putstr("received 50177 blocks");
 
   /* USER CODE END 2 */
   putstr("This is from puts!\n");
-  /*SDCard sd;
-  uint8_t sdstat = sd.init_card();
-  putstr("SD init state:");
-  putint(sdstat);
-  uint8_t sdbuf[512];
-  sdstat = sd.sd_read(0, sdbuf);
-  putstr("SD read success state:");
-  putint(sdstat);
-  */
-  uint8_t qspistat = BSP_QSPI_Init();
-  putstr("QSPI init state:");
-  putint(qspistat);
-  uint8_t teststr[] = "Hello World!";
-  qspistat = BSP_QSPI_Write(teststr, 0, 12);
-
-  putstr("write state:");
-  putint(qspistat);
-
-  uint8_t readback[18];
-  qspistat = BSP_QSPI_Read(readback, 0, 12);
-
-  putstr("read state:");
-  putint(qspistat);
-  putstr((char*)readback);
   ILI9341 display(&hspi1);
-  STMPE610 touchscreen;
-  bool ts_success = touchscreen.init();
-  if(ts_success)
-    putstr("Touchscreen initialized\n");
-  else
-    putstr("Touchscreen init failed\n");
-  uint16_t tversion = touchscreen.getVersion();
-  putint(tversion);
-  uint8_t spicon = touchscreen.readRegister8(0x08);
-  putstr("SPICON:");
-  putint(spicon);
-  // Works
-  /*uint32_t a,b,res;*/
-  /*res=__SADD8(a,b);*/
+
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
-  /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
-  /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);*/
+
   uint8_t in[3] = {0,1,2};
   uint8_t out[3] = {0,1,2};
-  /*HAL_SPI_Transmit(&hspi1, (uint8_t *)buf, strlen(buf), HAL_MAX_DELAY);*/
-  /*HAL_SPI_TransmitReceive(&hspi1, in,out,strlen(in), HAL_MAX_DELAY);*/
-  /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);*/
-  /*HAL_Delay(10);*/
   putstr("Gonna init TFT\n");
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t red = display.color565(255,0,0);
-  //y: 400 - 3500
-  //Top left: 526,1870
-  //Top right: 526, 2200,
-  //Bottom left:514,316-kkJ,65
-  //bottom right:522,2360, 44
-  uint16_t x,y;
-  uint8_t z;
-  int sx=0,sy=0;
-  // previous point
-  int cnt=10;
+
+  for(int i=0;i<200;i++){
+    printTestTest(display, i);
+    HAL_Delay(10);
+  }
+  
+  
   while (1){
     /* USER CODE END WHILE */
 
-    if(touchscreen.touched()){
-      /*TS_Point tp = touchscreen.getPoint();*/
-      while (! touchscreen.bufferEmpty()) {
-        touchscreen.readData(&x, &y, &z);
-      }
-      touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
-      
-      //In portrait(cable combing out on left:
-      //X:500...3000
-      //Y:400..3400
-      int dx=x, dy=y;
-      dx/=15;
-      dx-=10; //Now 0...2500
-      dy/=12;
-      dy-=10; // Now 0...3000;
-      dx = dx >= 240 ? 239 : dx;
-      dx = dx <= 0 ? 0 : dx;
-      dy = dy >= 320 ? 319 : dy;
-      dy = dy <= 0 ? 0 : dy;
-      
-      sx+=dx;
-      sy+=dy; 
-      if(cnt==0){
-        cnt=10;
-        sx/=11;
-        sy/=11;
-        //if(dist(sx,sy,px,py,10))
-        if(sy>int(120)){
-            
-          putint(sx);
-          putstr(" ");
-          putint(sy);
-          putstr("\n");
-          display.drawPixel(sx,sy,red);
-          display.drawPixel(sx+1,sy,red);
-          display.drawPixel(sx,sy+1,red);
-          display.drawPixel(sx-1,sy,red);
-          display.drawPixel(sx,sy-1,red);
-          for(int i=-2;i<=2;i++)
-            for(int j=-2;j<=2;j++)
-          display.drawPixel(sx+i,sy+j,red);
-        }
-      }
-      cnt--;
     }
     /* USER CODE BEGIN 3 */
   }

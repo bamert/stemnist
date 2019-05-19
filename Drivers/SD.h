@@ -83,7 +83,7 @@ class SDCard{
 
     /* Receive command response */
     if (cmd == CMD12) spix(0xff);		/* Skip a byte when stop reading */
-    n = 10;								/* Wait for a valid response in timeout of 10 attempts */
+    n = 50;								/* Wait for a valid response in timeout of 10 attempts */
     do
       res = spix(0xff);
     while ((res & 0x80) && --n);
@@ -98,14 +98,13 @@ class SDCard{
     uint8_t resp;
     uint8_t n, cmd, ty, ocr[4];
     uint16_t dummy;
-    //SPI1_SetInitSpeed();
+    SPI1_SetInitSpeed();
     SD_CS_HIGH
     for (i=0; i<11; i++) { //Pulse 80+ clocks to reset MMC
       spix(0xFF);
     }
     SD_CS_LOW
 
-    //HAL_Delay(10);
     ty=0;
     i=200;
     do
@@ -118,7 +117,6 @@ class SDCard{
       do {
         resp = sdCommand(CMD8,0x1AA);
 	    } while(resp!=1 && i--);
-
       if (resp == 1) {	// SDv2? /
         for (n = 0; n < 4; n++) ocr[n] = spix(0xff);		// Get trailing return value of R7 resp /
           if (ocr[2] == 0x01 && ocr[3] == 0xAA) {				// The card can work at vdd range of 2.7-3.6V /
@@ -129,8 +127,8 @@ class SDCard{
 					//dogPuts(1,11,1,"SD v2");
 					//if(ocr[0] & 0x40) dogPuts(30,11,1,"HC");
 					//dogPuts(1,11,1,"SD v2");
-				}
-			}
+				}//end CSS check
+			}//end voltage check
 		} else {							// SDv1 or MMCv3 /
 			if (sdCommand(ACMD41, 0) <= 1) 	{
 				ty = CT_SD1; cmd = ACMD41;	// SDv1 /
@@ -193,8 +191,6 @@ uint8_t sd_read(uint32_t adr, uint8_t* buf) {
   len=512;
 
   SPI1_SetOpSpeed();
-	//if(address == lastSector) return(0); // We've already got this in buffer, speed it up
-	//lastSector = address;
   SD_CS_LOW
 	if (!(CardType & CT_BLOCK)) adr *=512;
 	if(sdCommand(CMDREAD,adr)==0) {
