@@ -37,7 +37,7 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/Adafruit/Adafruit_ILI9341.h Inc/font/font8x8_basic.h \
  Drivers/stm32l475e_iot01_qspi.h \
  Drivers/BSP/Components/mx25r6435f/mx25r6435f.h Inc/data/testimgs512.h \
- Inc/data/testlabels512.h
+ Inc/data/testlabels512.h Inc/data/mapping.h
 
 Inc/main.h:
 
@@ -126,3 +126,5 @@ Drivers/BSP/Components/mx25r6435f/mx25r6435f.h:
 Inc/data/testimgs512.h:
 
 Inc/data/testlabels512.h:
+
+Inc/data/mapping.h:

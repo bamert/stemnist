@@ -27,6 +27,7 @@
 #include "stm32l475e_iot01_qspi.h"
 #include "data/testimgs512.h"
 #include "data/testlabels512.h"
+#include "data/mapping.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -104,9 +105,13 @@ void printTestTest(ILI9341& display, int idx){
     for(int y=0;y<28;y++){
       unsigned char px =  testimgs512[baseOffset+y*28+x];
       uint16_t col = display.color565(px,px,px);
-      display.drawPixel(y,28-x,col);
+      display.drawPixel(28-x,y,col);
     }
   }
+}
+void printLabel(ILI9341& display, int idx){
+  unsigned char label =  classmapping[testlabels512[idx+8]];
+  display.putstr(50,30, (const char*)&label);
 }
 /* USER CODE END 0 */
 
@@ -167,7 +172,8 @@ int main(void)
   display.putstr(50,50, "Hello World!");
   for(int i=0;i<200;i++){
     printTestTest(display, i);
-    HAL_Delay(10);
+    printLabel(display, i);
+    HAL_Delay(1000);
   }
   
   
