@@ -159,23 +159,19 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);//disable sd card
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
-
-  /* USER CODE END 2 */
   ILI9341 display(&hspi1);
-
   display.init();
   display.fillRect(0,0,240,320, display.color565(255,255,255));
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
   display.putstr(50,50, "Hello World!");
   for(int i=0;i<200;i++){
     printTestTest(display, i);
     printLabel(display, i);
     HAL_Delay(1000);
   }
-  
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   
   while (1){
     /* USER CODE END WHILE */
