@@ -137,8 +137,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers \
--I../Middlewares/ST/AI/AI/include \
--I../Middlewares/ST/AI/AI/data
+-IMiddlewares/ST/AI/AI/include \
+-IMiddlewares/ST/AI/AI/data
 
 
 # compile gcc flags

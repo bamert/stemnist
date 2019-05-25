@@ -1,4 +1,5 @@
 /* USER CODE BEGIN Header */
+  int cnt=10;
 /**
   ******************************************************************************
   * @file           : main.c
@@ -24,6 +25,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Adafruit/Adafruit_ILI9341.h"
+/*#include "stm32l475e_iot01_qspi.h"*/
+#include "data/testimgs512.h"
+#include "data/testlabels512.h"
+#include "data/mapping.h"
+
 
 /* USER CODE END Includes */
 
@@ -89,12 +96,20 @@ void putint(uint16_t v){
   sprintf(str,"%u",v);
   putstr(str);
 }
-bool dist(int sx, int sy, int px, int py, int dist){
-  int d = abs(sx-px) + abs(sy-py);
-  if (d < dist && d >=0) 
-    return true;
-  else 
-    return false;
+void printTestTest(ILI9341& display, int idx){
+  if(idx>511) return;
+  int baseOffset=16+idx*28*28;
+  for(int x=0;x<28;x++){
+    for(int y=0;y<28;y++){
+      unsigned char px =  testimgs512[baseOffset+y*28+x];
+      uint16_t col = display.color565(px,px,px);
+      display.drawPixel(28-x,y,col);
+    }
+  }
+}
+void printLabel(ILI9341& display, int idx){
+  unsigned char label =  classmapping[testlabels512[idx+8]];
+  display.putstr(50,30, (const char*)&label);
 }
 /* USER CODE END PFP */
 
@@ -147,22 +162,20 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);//disable touchscreen chip
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);//disable lcd
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
+  ILI9341 display(&hspi1);
+  display.init();
+  display.fillRect(0,0,240,320, display.color565(255,255,255));
+  display.putstr(50,50, "Hello World!");
+  for(int i=0;i<200;i++){
+    printTestTest(display, i);
+    printLabel(display, i);
+    HAL_Delay(1000);
+  }
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t red = display.color565(255,0,0);
-  //y: 400 - 3500
-  //Top left: 526,1870
-  //Top right: 526, 2200,
-  //Bottom left:514,316-kkJ,65
-  //bottom right:522,2360, 44
-  uint16_t x,y;
-  uint8_t z;
-  int sx=0,sy=0;
-  // previous point
-  int cnt=10;
   while (1){
     /* USER CODE END WHILE */
 
