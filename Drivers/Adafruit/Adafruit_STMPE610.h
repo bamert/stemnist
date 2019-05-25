@@ -168,13 +168,13 @@ class STMPE610{
       //SPI1->CR1 = SPI_CR1_BR_2 ; //32 divider. does not work!
       //SPI1->CR1 = SPI_CR1_BR_2 | SPI_CR1_BR_1; //128 divider. 
       //256 divider seems to slow (?). All values of x axis always 512
-
-
-      //
       //SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPHA | SPI_CR1_CPOL; // mode 3
       SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_SSM | SPI_CR1_SSI  ; // mode 0
       /* Disable receive FIFO, it'd complicate things when there is an odd number of bytes to transfer */
       SPI1->CR2 = SPI_CR2_FRXTH;
+    }
+    void SPI1_SetSpeed(){
+      SPI1->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_0; //64 divider. works sort of
     }
     /*void SPI1_Transfer(uint8_t *outp, uint8_t *inp, int count) {
       while(count--) {
@@ -188,8 +188,9 @@ class STMPE610{
     }*/
 
     uint8_t spiIn(void){
+      //SPI1_SetSpeed();
       SPI1_Init();
-      uint8_t out=0x00,in=0x00;
+      uint8_t out=0xff,in=0x00;
       while(!(SPI1->SR & SPI_SR_TXE)) ;
       *(volatile uint8_t *)&SPI1->DR = out;
       while(!(SPI1->SR & SPI_SR_RXNE)) ;
@@ -197,6 +198,7 @@ class STMPE610{
       return in;
     }
     void spiOut(uint8_t x){
+      //SPI1_SetSpeed();
       SPI1_Init();
       uint8_t in;
       while(!(SPI1->SR & SPI_SR_TXE)) ;

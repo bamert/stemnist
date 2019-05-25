@@ -37,8 +37,10 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Src/main.c \
+Src/Adafruit_ILI9341.c \
 Src/stm32l4xx_it.c \
 Src/stm32l4xx_hal_msp.c \
+Drivers/stm32l475e_iot01_qspi.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dfsdm.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c \
@@ -67,11 +69,11 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_exti.c \
 Src/system_stm32l4xx.c \
 Src/app_x-cube-ai.c \
-../Drivers/CMSIS/DSP_Lib/Source/BasicMathFunctions/arm_dot_prod_f32.c \
+Drivers/CMSIS/DSP_Lib/Source/BasicMathFunctions/arm_dot_prod_f32.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_crc_ex.c \
-../Middlewares/ST/AI/AI/data/network_data.c \
-../Middlewares/ST/AI/AI/src/network.c
+Middlewares/ST/AI/AI/data/network_data.c \
+Middlewares/ST/AI/AI/src/network.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -85,13 +87,13 @@ PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
 ifdef GCC_PATH
-CC = $(GCC_PATH)/$(PREFIX)g++
-AS = $(GCC_PATH)/$(PREFIX)g++ -x assembler-with-cpp
+CC = $(GCC_PATH)/$(PREFIX)gcc
+AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
 else
-CC = $(PREFIX)g++
-AS = $(PREFIX)g++ -x assembler-with-cpp
+CC = $(PREFIX)gcc
+AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
 endif
@@ -144,7 +146,7 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -std=c99 -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

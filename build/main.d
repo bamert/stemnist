@@ -19,6 +19,8 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma_ex.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dfsdm.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h \
+ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_crc.h \
+ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_crc_ex.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ex.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ramfunc.h \
@@ -34,7 +36,11 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h \
  Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h \
- Drivers/Adafruit/Adafruit_ILI9341.h Drivers/Adafruit/Adafruit_STMPE610.h
+ Inc/app_x-cube-ai.h Middlewares/ST/AI/AI/include/ai_platform.h \
+ Middlewares/ST/AI/AI/include/network.h \
+ Middlewares/ST/AI/AI/data/network_data.h \
+ Drivers/Adafruit/Adafruit_ILI9341.h Inc/data/testimgs512.h \
+ Inc/data/testlabels512.h Inc/data/mapping.h
 
 Inc/main.h:
 
@@ -82,6 +88,10 @@ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dfsdm.h:
 
 Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h:
 
+Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_crc.h:
+
+Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_crc_ex.h:
+
 Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h:
 
 Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ex.h:
@@ -112,6 +122,18 @@ Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h:
 
 Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h:
 
+Inc/app_x-cube-ai.h:
+
+Middlewares/ST/AI/AI/include/ai_platform.h:
+
+Middlewares/ST/AI/AI/include/network.h:
+
+Middlewares/ST/AI/AI/data/network_data.h:
+
 Drivers/Adafruit/Adafruit_ILI9341.h:
 
-Drivers/Adafruit/Adafruit_STMPE610.h:
+Inc/data/testimgs512.h:
+
+Inc/data/testlabels512.h:
+
+Inc/data/mapping.h:
