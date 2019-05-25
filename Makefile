@@ -164,7 +164,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = STM32L475VGTx_FLASH.ld
 
 # libraries
-LIBS = -lnosys  -lc -lm  
+LIBS = -lnosys  -lc -l:Middlewares/ST/AI/AI/lib/network_runtime.a -lm
 LIBDIR = 
 # nosys  spec required for C++ to compile
 LDFLAGS = $(MCU) -specs=nosys.specs -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections

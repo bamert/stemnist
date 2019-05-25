@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "Adafruit/Adafruit_ILI9341.h"
 #include "data/testimgs512.h"
 #include "data/testlabels512.h"
@@ -42,7 +43,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define AI_BUFFER_NULL(ptr_)  \
+ AI_BUFFER_OBJ_INIT( \
+   AI_BUFFER_FORMAT_NONE|AI_BUFFER_FMT_FLAG_CONST, \
+   0, 0, 0, 0, \
+   AI_HANDLE_PTR(ptr_))
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -249,6 +254,15 @@ void aiTest(void)
     in_data[0]=1.0;
     in_data[1]=0.0;
 
+    // Convert input into float
+    int baseOffset=16+0*28*28;
+    for(int i=0;i<28*28;i++){
+      in_data[i] = (ai_float)testimgs512[baseOffset+i];
+    }  
+
+    /*ILI9341_putstr(50,50, "Hello World!");*/
+    putstr("Network output size");
+    putint( AI_MNETWORK_OUT_1_SIZE);
     aiRun(0,in_data, out_data);
     printf("IN0: %f, IN1: %f, OUT: %f \n\r",in_data[0],in_data[1],round(out_data[0]));
 }
@@ -302,6 +316,7 @@ int main(void)
   ILI9341_Init();
   ILI9341_fillRect(0,0,240,320, ILI9341_color565(255,255,255));
   ILI9341_putstr(50,50, "Hello World!");
+  aiTest();
   for(int i=0;i<200;i++){
     printTestTest(i);
     printLabel(i);
