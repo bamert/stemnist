@@ -19,17 +19,13 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdlib.h>
 #include "main.h"
-#include "Adafruit/Adafruit_ILI9341.h"
-#include "Adafruit/Adafruit_STMPE610.h"
+#include "app_x-cube-ai.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
-
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -47,6 +43,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
+
 DFSDM_Channel_HandleTypeDef hdfsdm1_channel1;
 
 I2C_HandleTypeDef hi2c2;
@@ -76,6 +74,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 
 // Dead simple put string method. Nik Bamert
@@ -132,7 +131,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  /*MX_DFSDM1_Init();*/
+  MX_DFSDM1_Init();
   MX_I2C2_Init();
   MX_QUADSPI_Init();
   MX_SPI3_Init();
@@ -140,6 +139,8 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_SPI1_Init();
+  MX_CRC_Init();
+  MX_X_CUBE_AI_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -148,33 +149,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
 
   /* USER CODE END 2 */
-  putstr("This is from puts!\n");
-  ILI9341 display(&hspi1);
-  STMPE610 touchscreen;
-  bool ts_success = touchscreen.init();
-  if(ts_success)
-    putstr("Touchscreen initialized\n");
-  else
-    putstr("Touchscreen init failed\n");
-  uint16_t tversion = touchscreen.getVersion();
-  putint(tversion);
-  uint8_t spicon = touchscreen.readRegister8(0x08);
-  putstr("SPICON:");
-  putint(spicon);
-  // Works
-  uint32_t a,b,res;
-  res=__SADD8(a,b);
-  display.init();
-  display.fillRect(0,0,240,320, display.color565(255,255,255));
-  /*display.fillRect(0,0,100,200, display.color565(255,100,50));*/
-  /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);*/
-  uint8_t in[3] = {0,1,2};
-  uint8_t out[3] = {0,1,2};
-  /*HAL_SPI_Transmit(&hspi1, (uint8_t *)buf, strlen(buf), HAL_MAX_DELAY);*/
-  /*HAL_SPI_TransmitReceive(&hspi1, in,out,strlen(in), HAL_MAX_DELAY);*/
-  /*HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);*/
-  /*HAL_Delay(10);*/
-  putstr("Gonna init TFT\n");
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint16_t red = display.color565(255,0,0);
@@ -191,41 +166,7 @@ int main(void)
   while (1){
     /* USER CODE END WHILE */
 
-    if(touchscreen.touched()){
-      /*TS_Point tp = touchscreen.getPoint();*/
-      while (! touchscreen.bufferEmpty()) {
-        touchscreen.readData(&x, &y, &z);
-      }
-      touchscreen.writeRegister8(STMPE_INT_STA, 0xFF); // reset all intsk
-      
-      //In portrait(cable combing out on left:
-      //X:500...3000
-      //Y:400..3400
-      int dx=x, dy=y;
-      dx/=15;
-      dx-=10; //Now 0...2500
-      dy/=12;
-      dy-=10; // Now 0...3000;
-      dx = dx >= 240 ? 239 : dx;
-      dx = dx <= 0 ? 0 : dx;
-      dy = dy >= 320 ? 319 : dy;
-      dy = dy <= 0 ? 0 : dy;
-      
-      sx+=dx;
-      sy+=dy; 
-      if(cnt==0){
-        cnt=10;
-        sx/=11;
-        sy/=11;
-        //if(dist(sx,sy,px,py,10))
-        if(sy>int(120)){
-          for(int i=-2;i<=2;i++)
-            for(int j=-2;j<=2;j++)
-          display.drawPixel(sx+i,sy+j,red);
-        }
-      }
-      cnt--;
-    }
+  MX_X_CUBE_AI_Process();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -304,6 +245,37 @@ void SystemClock_Config(void)
   /** Enable MSI Auto calibration 
   */
   HAL_RCCEx_EnableMSIPLLMode();
+}
+
+/**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  hcrc.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_ENABLE;
+  hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
+  hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_NONE;
+  hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+  hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
+
 }
 
 /**
@@ -446,7 +418,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -688,7 +660,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ARD_D10_Pin|SPBTLE_RF_RST_Pin|ARD_D9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D4_Pin */
@@ -723,7 +695,7 @@ static void MX_GPIO_Init(void)
                           |SPSGRF_915_SDN_Pin|ARD_D5_Pin|SPSGRF_915_SPI3_CSN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LPS22HB_INT_DRDY_EXTI0_Pin LSM6DSL_INT1_EXTI11_Pin ARD_D2_Pin HTS221_DRDY_EXTI15_Pin 
