@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    network.c
   * @author  AST Embedded Analytics Research Platform
-  * @date    Mon May 27 19:23:42 2019
+  * @date    Mon May 27 19:35:22 2019
   * @brief   AI Tool Automatic Code Generator for Embedded NN computing
   ******************************************************************************
   * @attention
@@ -53,7 +53,7 @@
 #endif
 
 #undef AI_TOOLS_DATE_TIME
-#define AI_TOOLS_DATE_TIME   "Mon May 27 19:23:42 2019"
+#define AI_TOOLS_DATE_TIME   "Mon May 27 19:35:22 2019"
 
 #undef AI_TOOLS_COMPILE_TIME
 #define AI_TOOLS_COMPILE_TIME    __DATE__ " " __TIME__
@@ -177,14 +177,14 @@ AI_TENSOR_OBJ_DECLARE(
 
 /* Weight tensor #1 */
 AI_ARRAY_OBJ_DECLARE(
-  dense_1_weights_array, AI_DATA_FORMAT_FLOAT, 
+  dense_1_weights_array, AI_DATA_FORMAT_LUT8_FLOAT, 
   NULL, NULL, 100352,
   AI_STATIC)
 
 AI_TENSOR_OBJ_DECLARE(
   dense_1_weights,
   AI_SHAPE_INIT(1, 1, 128, 784),
-  AI_STRIDE_INIT(401408, 401408, 3136, 4),
+  AI_STRIDE_INIT(100352, 100352, 784, 1),
   &dense_1_weights_array,
   AI_STATIC)
 
@@ -243,14 +243,14 @@ AI_LAYER_OBJ_DECLARE(
 
 /* Weight tensor #1 */
 AI_ARRAY_OBJ_DECLARE(
-  dense_2_weights_array, AI_DATA_FORMAT_FLOAT, 
+  dense_2_weights_array, AI_DATA_FORMAT_LUT8_FLOAT, 
   NULL, NULL, 6016,
   AI_STATIC)
 
 AI_TENSOR_OBJ_DECLARE(
   dense_2_weights,
   AI_SHAPE_INIT(1, 1, 47, 128),
-  AI_STRIDE_INIT(24064, 24064, 512, 4),
+  AI_STRIDE_INIT(6016, 6016, 128, 1),
   &dense_2_weights_array,
   AI_STATIC)
 
@@ -308,7 +308,7 @@ AI_LAYER_OBJ_DECLARE(
 AI_NETWORK_OBJ_DECLARE(
   AI_NET_OBJ_INSTANCE,
   AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_U8,
-                     1, 1, 426172, 1,
+                     1, 1, 109116, 1,
                      NULL),
   AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_U8,
                      1, 1, 3652, 1,
@@ -360,16 +360,16 @@ ai_bool network_configure_weights(
     /* Updating weights (byte) offsets */
     dense_1_weights_array.format |= AI_FMT_FLAG_CONST;
   dense_1_weights_array.data = weights + 0;
-  dense_1_weights_array.data_start = weights + 0;
+  dense_1_weights_array.data_start = weights + 100352;
   dense_1_bias_array.format |= AI_FMT_FLAG_CONST;
-  dense_1_bias_array.data = weights + 401408;
-  dense_1_bias_array.data_start = weights + 401408;
+  dense_1_bias_array.data = weights + 101376;
+  dense_1_bias_array.data_start = weights + 101376;
   dense_2_weights_array.format |= AI_FMT_FLAG_CONST;
-  dense_2_weights_array.data = weights + 401920;
-  dense_2_weights_array.data_start = weights + 401920;
+  dense_2_weights_array.data = weights + 101888;
+  dense_2_weights_array.data_start = weights + 107904;
   dense_2_bias_array.format |= AI_FMT_FLAG_CONST;
-  dense_2_bias_array.data = weights + 425984;
-  dense_2_bias_array.data_start = weights + 425984;
+  dense_2_bias_array.data = weights + 108928;
+  dense_2_bias_array.data_start = weights + 108928;
   
   }
 

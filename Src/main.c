@@ -145,6 +145,158 @@ void printPrediction(int idx){
   unsigned char label =  classmapping[testlabels512[idx+8]];
   ILI9341_putstr(30,30, (const char*)&label);
 }
+// The following wrappers to call and execute a given network
+// where taken from https://github.com/meerstern/STM32F7-DISCO-AI_XOR
+/*static struct ai_network_exec_ctx {
+   ai_handle network;
+   ai_network_report report;
+} net_exec_ctx[AI_MNETWORK_NUMBER] = {0};
+static int aiBootstrap(const char *nn_name, const int idx)
+{
+    ai_error err;
+	
+    // Creating the network 
+    printf("Creating the network \"%s\"..\r\n", nn_name);
+    err = ai_mnetwork_create(nn_name, &net_exec_ctx[idx].network, NULL);
+    if (err.type) {
+
+        printf("ERR:ai_mnetwork_create, %d %d\n\r",err.type,err.code);
+        return -1;
+    }
+
+    // Query the created network to get relevant info from it
+    if (ai_mnetwork_get_info(net_exec_ctx[idx].network, &net_exec_ctx[idx].report)){
+
+    }
+    else{
+        err = ai_mnetwork_get_error(net_exec_ctx[idx].network);
+
+        printf("ERR:ai_mnetwork_get_info, %d %d \n\r",err.type,err.code);
+        ai_mnetwork_destroy(net_exec_ctx[idx].network);
+        net_exec_ctx[idx].network = AI_HANDLE_NULL;
+        return -2;
+    }
+
+    // Initialize the instance 
+    printf("Initializing the network\r\n");
+    // build params structure to provide the reference of the
+    //  activation and weight buffers 
+    const ai_network_params params = {
+            AI_BUFFER_NULL(NULL),
+            AI_BUFFER_NULL(activations) };
+
+    if (!ai_mnetwork_init(net_exec_ctx[idx].network, &params)) {
+        err = ai_mnetwork_get_error(net_exec_ctx[idx].network);
+
+        printf("ERR:ai_mnetwork_init, %d %d\n\r",err.type,err.code);
+        ai_mnetwork_destroy(net_exec_ctx[idx].network);
+        net_exec_ctx[idx].network = AI_HANDLE_NULL;
+        return -4;
+    }
+    return 0;
+}
+int aiInit(void)
+{
+    int res = -1;
+    const char *nn_name;
+    int idx;
+
+    // Clean all network exec context 
+   for (idx=0; idx < AI_MNETWORK_NUMBER; idx++) {
+        net_exec_ctx[idx].network = AI_HANDLE_NULL;
+    }
+
+    // Discover and init the embedded network 
+	idx = 0;
+	do {
+		nn_name = ai_mnetwork_find(NULL, idx);
+		if (nn_name) {
+			printf("\r\nFound network \"%s\"\r\n", nn_name);
+			res = aiBootstrap(nn_name, idx);
+			if (res)
+				nn_name = NULL;
+		}
+		idx++;
+	} while (nn_name);
+
+    return 0;
+}
+void aiDeinit(void)
+{
+	ai_error err;
+	int idx;
+
+	printf("Releasing the network(s)...\r\n");
+
+	for (idx=0; idx<AI_MNETWORK_NUMBER; idx++) {
+		if (net_exec_ctx[idx].network != AI_HANDLE_NULL) {
+			if (ai_mnetwork_destroy(net_exec_ctx[idx].network)
+					!= AI_HANDLE_NULL) {
+				err = ai_mnetwork_get_error(net_exec_ctx[idx].network);
+				printf("ERR:ai_mnetwork_destroy, %d %d\n\r",err.type,err.code);
+			}
+			net_exec_ctx[idx].network = AI_HANDLE_NULL;
+		}
+	}
+}
+int aiRun(const int idx, const ai_float *in_data, ai_float *out_data)
+{
+    ai_i32 nbatch;
+    ai_error err;
+
+    // AI buffer handlers 
+    ai_buffer ai_input[AI_MNETWORK_IN_1_SIZE] ;
+    ai_buffer ai_output[AI_MNETWORK_OUT_1_SIZE];
+
+    // Parameters checking 
+    if (!in_data || !out_data || !net_exec_ctx[idx].network)
+        return -1;
+
+    // Initialize input/output buffer handlers 
+    ai_input[0].n_batches = 1;
+    ai_input[0].data = AI_HANDLE_PTR(in_data);
+    ai_output[0].n_batches = 1;
+    ai_output[0].data = AI_HANDLE_PTR(out_data);
+
+    // Perform the inference 
+    nbatch = ai_mnetwork_run(net_exec_ctx[idx].network, &ai_input[0], &ai_output[0]);
+
+    if (nbatch != 1) {
+        err = ai_mnetwork_get_error(net_exec_ctx[idx].network);
+        printf("ERR:ai_mnetwork_get_error, %d %d\n\r",err.type,err.code);
+        return -1;
+    }
+
+    return 0;
+}
+int aiInference(int imgIdx){
+
+    aiInit();
+    in_data[0]=1.0;
+    in_data[1]=0.0;
+
+    // Convert input into float
+    int baseOffset=16+imgIdx*28*28;
+    for(int i=0;i<28*28;i++){
+      in_data[i] = 1.-((ai_float)testimgs512[baseOffset+i])/255.;
+    }  
+
+    aiRun(0,in_data, out_data);
+    ai_float max=0.;
+    int idx=0;
+    // find maximum output
+    for(int i=0;i<47;i++){
+     if(out_data[i] > max){
+       idx=i;
+       max = out_data[i];
+     }
+    }
+    aiDeinit();
+    putstr("Max index:");
+    putint(idx);
+    return idx;
+}
+*/
 uint8_t VectorMaximum(ai_float* vector){
   ai_float max=-100.;
   uint8_t idx=0;
@@ -322,6 +474,7 @@ int main(void)
     /* USER CODE END WHILE */
 
   MX_X_CUBE_AI_Process();
+  }
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
@@ -821,8 +974,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ARD_D4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  /*GPIO_InitStruct.Alternate = GPIO_SPEED_FREQ_HIGH;*/
   HAL_GPIO_Init(ARD_D4_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D7_Pin */
@@ -887,6 +1040,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(PMOD_SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
+
+  // SPI1 MOSI pullup
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PMOD_UART2_CTS_Pin PMOD_UART2_RTS_Pin PMOD_UART2_TX_Pin PMOD_UART2_RX_Pin */
   GPIO_InitStruct.Pin = PMOD_UART2_CTS_Pin|PMOD_UART2_RTS_Pin|PMOD_UART2_TX_Pin|PMOD_UART2_RX_Pin;
