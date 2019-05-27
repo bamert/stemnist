@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=/Users/ndb/Documents/MLuc/stemnist/Inc
+HeaderPath=/Users/ndb/Documents/repos/stemnist/Inc
 HeaderFiles=stm32l4xx_it.h;stm32l4xx_hal_conf.h;main.h;app_x-cube-ai.h;
-SourcePath=/Users/ndb/Documents/MLuc/stemnist/Src
+SourcePath=/Users/ndb/Documents/repos/stemnist/Src
 SourceFiles=stm32l4xx_it.c;stm32l4xx_hal_msp.c;main.c;app_x-cube-ai.c;
 
 [PreviousLibFiles]
