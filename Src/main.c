@@ -106,6 +106,9 @@ void putstr(char* s){
     s++;
   }
 }
+void putcharr(uint8_t c){
+    while (HAL_OK != HAL_UART_Transmit(&huart1, &c, 1, 30000));
+}
 int _write(int fd, char *ptr, int len){
   while(len--){
     while (HAL_OK != HAL_UART_Transmit(&huart1, (uint8_t*)ptr, 1, 30000));
@@ -294,9 +297,9 @@ int aiInference(int imgIdx){
     return idx;
 }
 */
-int VectorMaximum(ai_float* vector){
+uint8_t VectorMaximum(ai_float* vector){
   ai_float max=-100.;
-  int idx=0;
+  uint8_t idx=0;
   
   // find maximum output
   for(int i=0;i<47;i++){
@@ -305,7 +308,6 @@ int VectorMaximum(ai_float* vector){
      max = vector[i];
    }
   }
-  putint(idx);
   return idx;
 }
 // Taken from exercise 3
@@ -316,6 +318,37 @@ void NormalizeVector(uint16_t vectorSize, float* vector){
 		vector[i] = vector[i]/255.;
 	}
 }
+void fliplr(uint8_t* in, uint8_t* out){
+  for (int sRow = 0; sRow < 28 ; sRow++) {
+    for (int sCol = 0; sCol < 28; sCol++) {
+      uint8_t temp = in[sRow*28+sCol];
+      int tRow=sRow;
+      int tCol=28-sCol;
+      out[tRow*28+tCol]=temp;
+    }
+  }
+}
+void rotateImg90(uint8_t* in, uint8_t* out) {
+  // Consider all squares one by one
+  for (int sRow = 0; sRow < 28 ; sRow++) {
+    for (int sCol = 0; sCol < 28; sCol++) {
+      uint8_t temp = in[sRow*28+sCol];
+      int tCol=sRow;
+      int tRow=28-sCol;//rot 90 degrees CCW
+      out[tRow*28+tCol]=temp;
+    }
+  }
+}
+void transposeImg(uint8_t* in, uint8_t* out){
+  for (int sRow = 0; sRow < 28 ; sRow++) {
+    for (int sCol = 0; sCol < 28; sCol++) {
+      uint8_t temp = in[sRow*28+sCol];
+      out[sCol*28+sRow]=temp;
+    }
+  }
+
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -379,16 +412,19 @@ int main(void)
   ILI9341_Init();
   ILI9341_fillRect(0,0,240,320, ILI9341_color565(255,255,255));
   ILI9341_putstr(50,50, "Hello World!");
+  int nCorrect=0;
+  int totalTime=0;
   for(int i=0;i<200;i++){
   MX_X_CUBE_AI_Process();
     printTestTest(i);
     printLabel(i);
     // Do inference on testdata
-
     int baseOffset=16+i*28*28;
-    // Copy image data
+    uint8_t transposedImg[28*28];
+    transposeImg(&testimgs512[baseOffset], transposedImg);
     for(int j=0;j<28*28;j++){
-      in_data[j] = testimgs512[baseOffset+j]; 
+      /*in_data[j] = testimgs512[baseOffset+j]; */
+      in_data[j] = transposedImg[j]; 
     }
 
     // normalize data
@@ -405,18 +441,31 @@ int main(void)
     ai_output[0].data = AI_HANDLE_PTR(out_data);
 
 
+    // Pass data through network
+    int start = HAL_GetTick();
     ai_mnetwork_run(network_handle, &ai_input[0], &ai_output[0]);
-    int pred = VectorMaximum(&ai_output[0].data[0]);
-    // output prediction
-    putint(pred);
-    printPrediction(pred);
-    if(out_data[0] < out_data[1])
-      putstr("smaller");
-    else
-      putstr("larger");
+    int end = HAL_GetTick();
+    totalTime+= (end-start);
 
-    HAL_Delay(1000);
+    // output prediction
+    uint8_t pred = VectorMaximum(&ai_output[0].data[0]);
+    uint8_t predLabel = classmapping[pred];
+    uint8_t label = classmapping[testlabels512[i+8]];
+    printPrediction(pred);
+    putcharr(label);
+    putstr(" ");
+    putcharr(predLabel);
+    putstr("\n");
+    if(predLabel==label)
+      nCorrect++;
+
+    /*HAL_Delay(1000);*/
   }
+  putstr("Correct");
+  putint(nCorrect);
+  putstr("\nAverage inference time [ms]");
+  putint(totalTime/200);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
