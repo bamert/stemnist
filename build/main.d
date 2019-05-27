@@ -40,7 +40,8 @@ build/main.o: Src/main.c Inc/main.h \
  Middlewares/ST/AI/AI/include/network.h \
  Middlewares/ST/AI/AI/data/network_data.h \
  Drivers/Adafruit/Adafruit_ILI9341.h Inc/data/testimgs512.h \
- Inc/data/testlabels512.h Inc/data/mapping.h
+ Inc/data/testlabels512.h Inc/data/mapping.h \
+ Drivers/CMSIS/Include/arm_math.h Drivers/CMSIS/Include/core_cm4.h
 
 Inc/main.h:
 
@@ -137,3 +138,7 @@ Inc/data/testimgs512.h:
 Inc/data/testlabels512.h:
 
 Inc/data/mapping.h:
+
+Drivers/CMSIS/Include/arm_math.h:
+
+Drivers/CMSIS/Include/core_cm4.h:

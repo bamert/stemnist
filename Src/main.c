@@ -32,6 +32,7 @@
 #include "data/testimgs512.h"
 #include "data/testlabels512.h"
 #include "data/mapping.h"
+#include "arm_math.h" // for sqrt32
 
 
 /* USER CODE END Includes */
@@ -73,9 +74,11 @@ UART_HandleTypeDef huart3;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-static ai_u8 activations[AI_MNETWORK_DATA_ACTIVATIONS_SIZE];
-ai_float in_data[AI_MNETWORK_IN_1_SIZE];
-ai_float out_data[AI_MNETWORK_OUT_1_SIZE];
+static ai_u8 activations[AI_NETWORK_DATA_ACTIVATIONS_SIZE];
+ai_float in_data[AI_NETWORK_IN_1_SIZE];
+float out_data[AI_NETWORK_OUT_1_SIZE];
+/*static ai_buffer net_in[AI_TESTNN_IN_NUM]  = {AI_MNETWORK_IN_1};*/
+/*static ai_buffer net_out[AI_TESTNN_OUT_NUM] = {AI_MNETWORK_OUT_1};*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,9 +106,21 @@ void putstr(char* s){
     s++;
   }
 }
+int _write(int fd, char *ptr, int len){
+  while(len--){
+    while (HAL_OK != HAL_UART_Transmit(&huart1, (uint8_t*)ptr, 1, 30000));
+    ptr++;
+  }
+  return len;
+}
 void putint(uint16_t v){
   char str[16];
   sprintf(str,"%u",v);
+  putstr(str);
+}
+void putfloat(float v){
+  char str[32];
+  sprintf(str,"%.3f",v);
   putstr(str);
 }
 void printTestTest(int idx){
@@ -123,9 +138,13 @@ void printLabel(int idx){
   unsigned char label =  classmapping[testlabels512[idx+8]];
   ILI9341_putstr(50,30, (const char*)&label);
 }
+void printPrediction(int idx){
+  unsigned char label =  classmapping[testlabels512[idx+8]];
+  ILI9341_putstr(30,30, (const char*)&label);
+}
 // The following wrappers to call and execute a given network
 // where taken from https://github.com/meerstern/STM32F7-DISCO-AI_XOR
-static struct ai_network_exec_ctx {
+/*static struct ai_network_exec_ctx {
    ai_handle network;
    ai_network_report report;
 } net_exec_ctx[AI_MNETWORK_NUMBER] = {0};
@@ -133,7 +152,7 @@ static int aiBootstrap(const char *nn_name, const int idx)
 {
     ai_error err;
 	
-    /* Creating the network */
+    // Creating the network 
     printf("Creating the network \"%s\"..\r\n", nn_name);
     err = ai_mnetwork_create(nn_name, &net_exec_ctx[idx].network, NULL);
     if (err.type) {
@@ -142,7 +161,7 @@ static int aiBootstrap(const char *nn_name, const int idx)
         return -1;
     }
 
-    /* Query the created network to get relevant info from it */
+    // Query the created network to get relevant info from it
     if (ai_mnetwork_get_info(net_exec_ctx[idx].network, &net_exec_ctx[idx].report)){
 
     }
@@ -155,10 +174,10 @@ static int aiBootstrap(const char *nn_name, const int idx)
         return -2;
     }
 
-    /* Initialize the instance */
+    // Initialize the instance 
     printf("Initializing the network\r\n");
-    /* build params structure to provide the reference of the
-     * activation and weight buffers */
+    // build params structure to provide the reference of the
+    //  activation and weight buffers 
     const ai_network_params params = {
             AI_BUFFER_NULL(NULL),
             AI_BUFFER_NULL(activations) };
@@ -179,12 +198,12 @@ int aiInit(void)
     const char *nn_name;
     int idx;
 
-    /* Clean all network exec context */
+    // Clean all network exec context 
    for (idx=0; idx < AI_MNETWORK_NUMBER; idx++) {
         net_exec_ctx[idx].network = AI_HANDLE_NULL;
     }
 
-    /* Discover and init the embedded network */
+    // Discover and init the embedded network 
 	idx = 0;
 	do {
 		nn_name = ai_mnetwork_find(NULL, idx);
@@ -222,21 +241,21 @@ int aiRun(const int idx, const ai_float *in_data, ai_float *out_data)
     ai_i32 nbatch;
     ai_error err;
 
-    /* AI buffer handlers */
+    // AI buffer handlers 
     ai_buffer ai_input[AI_MNETWORK_IN_1_SIZE] ;
     ai_buffer ai_output[AI_MNETWORK_OUT_1_SIZE];
 
-    /* Parameters checking */
+    // Parameters checking 
     if (!in_data || !out_data || !net_exec_ctx[idx].network)
         return -1;
 
-    /* Initialize input/output buffer handlers */
+    // Initialize input/output buffer handlers 
     ai_input[0].n_batches = 1;
     ai_input[0].data = AI_HANDLE_PTR(in_data);
     ai_output[0].n_batches = 1;
     ai_output[0].data = AI_HANDLE_PTR(out_data);
 
-    /* Perform the inference */
+    // Perform the inference 
     nbatch = ai_mnetwork_run(net_exec_ctx[idx].network, &ai_input[0], &ai_output[0]);
 
     if (nbatch != 1) {
@@ -247,24 +266,55 @@ int aiRun(const int idx, const ai_float *in_data, ai_float *out_data)
 
     return 0;
 }
-void aiTest(void)
-{
+int aiInference(int imgIdx){
 
     aiInit();
     in_data[0]=1.0;
     in_data[1]=0.0;
 
     // Convert input into float
-    int baseOffset=16+0*28*28;
+    int baseOffset=16+imgIdx*28*28;
     for(int i=0;i<28*28;i++){
-      in_data[i] = (ai_float)testimgs512[baseOffset+i];
+      in_data[i] = 1.-((ai_float)testimgs512[baseOffset+i])/255.;
     }  
 
-    /*ILI9341_putstr(50,50, "Hello World!");*/
-    putstr("Network output size");
-    putint( AI_MNETWORK_OUT_1_SIZE);
     aiRun(0,in_data, out_data);
-    printf("IN0: %f, IN1: %f, OUT: %f \n\r",in_data[0],in_data[1],round(out_data[0]));
+    ai_float max=0.;
+    int idx=0;
+    // find maximum output
+    for(int i=0;i<47;i++){
+     if(out_data[i] > max){
+       idx=i;
+       max = out_data[i];
+     }
+    }
+    aiDeinit();
+    putstr("Max index:");
+    putint(idx);
+    return idx;
+}
+*/
+int VectorMaximum(ai_float* vector){
+  ai_float max=-100.;
+  int idx=0;
+  
+  // find maximum output
+  for(int i=0;i<47;i++){
+   if(vector[i] > max){
+     idx=i;
+     max = vector[i];
+   }
+  }
+  putint(idx);
+  return idx;
+}
+// Taken from exercise 3
+void NormalizeVector(uint16_t vectorSize, float* vector){
+	float sumtotal = 0.0f;
+
+	for(int i=0;i<vectorSize;i++){
+		vector[i] = vector[i]/255.;
+	}
 }
 /* USER CODE END 0 */
 
@@ -307,7 +357,20 @@ int main(void)
   MX_CRC_Init();
   MX_X_CUBE_AI_Init();
   /* USER CODE BEGIN 2 */
+  ai_handle network_handle;
+  const char *nn_name;
+  const ai_network_params params = {
+            AI_NETWORK_DATA_WEIGHTS(ai_network_data_weights_get()),
+            AI_NETWORK_DATA_ACTIVATIONS(activations) };
 
+
+  ai_mnetwork_create("network", &network_handle, NULL);
+	ai_mnetwork_init(network_handle, &params);
+	
+  // We do we need to do this?
+  // Imho just to turn off the LED before anything is said. not important
+	/*net_out[0].data = g_ai_output;*/
+	
 
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);//disable touchscreen chip
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);//disable sd card
@@ -316,10 +379,42 @@ int main(void)
   ILI9341_Init();
   ILI9341_fillRect(0,0,240,320, ILI9341_color565(255,255,255));
   ILI9341_putstr(50,50, "Hello World!");
-  aiTest();
   for(int i=0;i<200;i++){
+  MX_X_CUBE_AI_Process();
     printTestTest(i);
     printLabel(i);
+    // Do inference on testdata
+
+    int baseOffset=16+i*28*28;
+    // Copy image data
+    for(int j=0;j<28*28;j++){
+      in_data[j] = testimgs512[baseOffset+j]; 
+    }
+
+    // normalize data
+    NormalizeVector(28*28, in_data);//normalize data
+
+    ai_buffer ai_input[AI_NETWORK_IN_1_SIZE] ;
+    ai_buffer ai_output[AI_NETWORK_OUT_1_SIZE];
+
+    /* Initialize input/output buffer handlers */
+    ai_input[0].n_batches = 1;
+    ai_input[0].data = AI_HANDLE_PTR(in_data);
+		ai_output[0].data = out_data;
+    ai_output[0].n_batches = 1;
+    ai_output[0].data = AI_HANDLE_PTR(out_data);
+
+
+    ai_mnetwork_run(network_handle, &ai_input[0], &ai_output[0]);
+    int pred = VectorMaximum(&ai_output[0].data[0]);
+    // output prediction
+    putint(pred);
+    printPrediction(pred);
+    if(out_data[0] < out_data[1])
+      putstr("smaller");
+    else
+      putstr("larger");
+
     HAL_Delay(1000);
   }
   /* USER CODE END 2 */
