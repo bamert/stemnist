@@ -654,9 +654,9 @@ STMicroelectronics.X-CUBE-AI.3.4.0.ModelMacc-6ac971eb13c70106b16ec87ce49207d909a
 STMicroelectronics.X-CUBE-AI.3.4.0.ModelName-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=network
 STMicroelectronics.X-CUBE-AI.3.4.0.ModelNameList=network
 STMicroelectronics.X-CUBE-AI.3.4.0.ModelRamOccupation-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=3569
-STMicroelectronics.X-CUBE-AI.3.4.0.ModelStructureFile-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=models/modelfc128.h5
+STMicroelectronics.X-CUBE-AI.3.4.0.ModelStructureFile-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=models2/bin/modelfc128.h5
 STMicroelectronics.X-CUBE-AI.3.4.0.ModelType-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=Model and Topology
-STMicroelectronics.X-CUBE-AI.3.4.0.ModelWeightFile-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=models/modelfc128.yaml
+STMicroelectronics.X-CUBE-AI.3.4.0.ModelWeightFile-6ac971eb13c70106b16ec87ce49207d909afea712f463043403984c6bca58bb8=models2/bin/modelfc128.yaml
 STMicroelectronics.X-CUBE-AI.3.4.0.XAaCUBEAaAICcArtificialOoIntelligenceJjCore=true
 STMicroelectronics.X-CUBE-AI.3.4.0_ArtificialOoIntelligenceJjApplication_RteComponent0=\#define AI_SYSTEM_PERFORMANCE
 STMicroelectronics.X-CUBE-AI.3.4.0_ArtificialOoIntelligenceJjApplication_RteComponentsize=1

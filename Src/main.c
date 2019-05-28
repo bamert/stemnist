@@ -414,7 +414,8 @@ int main(void)
   ILI9341_putstr(50,50, "Hello World!");
   int nCorrect=0;
   int totalTime=0;
-  for(int i=0;i<200;i++){
+  int nImages=512;
+  for(int i=0;i<nImages;i++){
   MX_X_CUBE_AI_Process();
     printTestTest(i);
     printLabel(i);
@@ -464,7 +465,7 @@ int main(void)
   putstr("Correct");
   putint(nCorrect);
   putstr("\nAverage inference time [ms]");
-  putint(totalTime/200);
+  putint(totalTime/nImages);
 
   /* USER CODE END 2 */
 
