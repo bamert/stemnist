@@ -247,7 +247,26 @@ void ILI9341_putstr(int x, int y, const char* str){
   }
 }
 
-
+void ILI9341_putchar(int x, int y, char str){
+  int dx=x;
+  int dy=y;
+ //Draw 64 pixels
+  for(uint8_t cx=0;cx<8;cx++){
+    char charline = font8x8_basic[str][7-cx]; 
+    for(uint8_t cy=0;cy<8;cy++){
+      if(charline&(1<<(7-cy)))
+        ILI9341_drawPixel(dx+cx,dy+7-cy,ILI9341_BLACK);
+      else
+        ILI9341_drawPixel(dx+cx,dy+7-cy,ILI9341_WHITE);
+    }
+  }
+  
+}
+void ILI9341_putint(int x, int y, int  v){
+  char str[16];
+  sprintf(str,"%u",v);
+  ILI9341_putstr(x,y,str);
+}
 
 void ILI9341_drawFastVLine(int16_t x, int16_t y, int16_t h,
  uint16_t color) {

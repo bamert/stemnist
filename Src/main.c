@@ -133,17 +133,31 @@ void printTestTest(int idx){
     for(int y=0;y<28;y++){
       unsigned char px =  testimgs512[baseOffset+y*28+x];
       uint16_t col = ILI9341_color565(px,px,px);
-      ILI9341_drawPixel(28-x,y,col);
+      ILI9341_drawPixel(100+28-x,100+y,col);
     }
   }
 }
-void printLabel(int idx){
-  unsigned char label =  classmapping[testlabels512[idx+8]];
-  ILI9341_putstr(50,30, (const char*)&label);
+void printImgX2(int idx){
+  if(idx>511) return;
+  int baseOffset=16+idx*28*28;
+  for(int x=0;x<28;x++){
+    for(int y=0;y<28;y++){
+      unsigned char px =  testimgs512[baseOffset+y*28+x];
+      uint16_t col = ILI9341_color565(px,px,px);
+      ILI9341_drawPixel(100+56-x*2,100+y*2,col);
+      ILI9341_drawPixel(100+56-x*2-1,100+y*2,col);
+      ILI9341_drawPixel(100+56-x*2,100+y*2+1,col);
+      ILI9341_drawPixel(100+56-x*2-1,100+y*2+1,col);
+    }
+  }
 }
-void printPrediction(int idx){
+void printLabel(int x, int y, int idx){
   unsigned char label =  classmapping[testlabels512[idx+8]];
-  ILI9341_putstr(30,30, (const char*)&label);
+  ILI9341_putchar(x, y, label);
+}
+void printPrediction(int x, int y, int idx){
+  unsigned char label =  classmapping[idx];
+  ILI9341_putchar(x, y, label);
 }
 // The following wrappers to call and execute a given network
 // where taken from https://github.com/meerstern/STM32F7-DISCO-AI_XOR
@@ -411,14 +425,17 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);//disable BLE module (could cause interference on touchscreen)
   ILI9341_Init();
   ILI9341_fillRect(0,0,240,320, ILI9341_color565(255,255,255));
-  ILI9341_putstr(50,50, "Hello World!");
-  int nCorrect=0;
+  ILI9341_putstr(50,10, "Model: fc128");
+  ILI9341_putstr(50,130, "Label");
+  ILI9341_putstr(30,130, "Pred.");
+  ILI9341_putstr(50,210, "Corr.");
+  ILI9341_putstr(30,210, "Wrong");
+  int nCorrect=0,nWrong=0;
   int totalTime=0;
   int nImages=512;
   for(int i=0;i<nImages;i++){
   MX_X_CUBE_AI_Process();
-    printTestTest(i);
-    printLabel(i);
+    printImgX2(i);
     // Do inference on testdata
     int baseOffset=16+i*28*28;
     uint8_t transposedImg[28*28];
@@ -452,13 +469,18 @@ int main(void)
     uint8_t pred = VectorMaximum(&ai_output[0].data[0]);
     uint8_t predLabel = classmapping[pred];
     uint8_t label = classmapping[testlabels512[i+8]];
-    printPrediction(pred);
+    printLabel(50,190,i);
+    printPrediction(30,190,pred);
+    ILI9341_putint(50, 260, nCorrect);
+    ILI9341_putint(30, 260, nWrong);
     putcharr(label);
     putstr(" ");
     putcharr(predLabel);
     putstr("\n");
     if(predLabel==label)
       nCorrect++;
+    else
+      nWrong++;
 
     /*HAL_Delay(1000);*/
   }

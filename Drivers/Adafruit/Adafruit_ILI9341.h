@@ -119,6 +119,8 @@ void ILI9341_pushColor(uint16_t color);
 void ILI9341_drawPixel(int16_t x, int16_t y, uint16_t color);
 void ILI9341_drawGUI(void);
 void ILI9341_putstr(int x, int y, const char* str);
+void ILI9341_putchar(int x, int y, char str);
+void ILI9341_putint(int x, int y, int  v);
 void ILI9341_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
 void ILI9341_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 void ILI9341_fillScreen(uint16_t color);
